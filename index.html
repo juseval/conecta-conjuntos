@@ -1,258 +1,1005 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Conecta Conjuntos</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Chakra+Petch:wght@500;600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
-<style>
-/* Layout: cyber HUD game. Menu with a level carousel -> level screen (HUD bar, mission panel, Set A / Set B cards, answer tray) -> result overlay. Single dark red look by choice. */
-:root{
-  --bg:#080405; --panel:rgba(28,8,11,.78); --panel2:rgba(48,12,16,.8); --line:#5b1c23; --line2:#8a2731;
-  --red:#e11d2e; --red2:#ff4d5a; --fg:#f5ecec; --muted:#a98d90; --ok:#2fd36b; --gold:#ffcf4a;
-  --display:"Anton", Impact, "Arial Narrow", sans-serif;
-  --hud:"Chakra Petch", "Segoe UI", sans-serif;
-  --body:"Barlow", "Segoe UI", sans-serif;
-  --mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
-  --cut:14px;
-  color-scheme:dark;
-}
-*{box-sizing:border-box}
-[hidden]{display:none!important}
-body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5;overflow-x:hidden}
-.stage{position:relative;min-height:100vh;isolation:isolate}
-.stage::before{content:"";position:fixed;inset:0;z-index:-2;
-  background:radial-gradient(60% 50% at 50% 40%,rgba(225,29,46,.28),transparent 70%),
-             linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px) 0 0/32px 32px,
-             linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px) 0 0/32px 32px,var(--bg)}
-.glyph{position:fixed;inset:auto 0 8vh 0;z-index:-1;text-align:center;font-family:var(--display);font-size:min(34vw,320px);line-height:.9;
-  color:transparent;-webkit-text-stroke:2px rgba(225,29,46,.22);pointer-events:none;user-select:none;white-space:nowrap}
-.wrap{max-width:980px;margin:0 auto;padding-block:20px 48px;padding-inline:16px;display:flex;flex-direction:column;gap:16px}
-.cham{clip-path:polygon(var(--cut) 0,100% 0,100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,0 100%,0 var(--cut));background:var(--line);padding:1px}
-.cham>.in{clip-path:inherit;background:var(--panel);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);height:100%;padding:16px}
-.label{font:600 11px var(--hud);letter-spacing:.18em;text-transform:uppercase;color:var(--red2)}
-.muted{color:var(--muted)}
-button{font-family:var(--hud);cursor:pointer}
-button:focus-visible,input:focus-visible,.slot:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
-.btn{font:700 15px var(--hud);letter-spacing:.08em;text-transform:uppercase;border:0;padding:12px 22px;color:#fff;background:var(--red);
-  clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);transition:filter .15s,transform .15s}
-.btn:hover{filter:brightness(1.15)} .btn:active{transform:translateY(1px)}
-.btn.ghost{background:var(--panel2);color:var(--fg);box-shadow:inset 0 0 0 1px var(--line2)}
-.btn.ok{background:var(--ok);color:#04150a}
-.icon-btn{width:44px;height:44px;border:0;background:var(--red);color:#fff;font-size:20px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
-.icon-btn:disabled{opacity:.35;cursor:default}
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Conecta Conjuntos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Anton&family=Chakra+Petch:wght@500;600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap"
+    />
+    <style>
+      /* Layout: cyber HUD game. Menu with a level carousel -> level screen (HUD bar, mission panel, Set A / Set B cards, answer tray) -> result overlay. Single dark red look by choice. */
+      :root {
+        --bg: #080405;
+        --panel: rgba(28, 8, 11, 0.78);
+        --panel2: rgba(48, 12, 16, 0.8);
+        --line: #5b1c23;
+        --line2: #8a2731;
+        --red: #e11d2e;
+        --red2: #ff4d5a;
+        --fg: #f5ecec;
+        --muted: #a98d90;
+        --ok: #2fd36b;
+        --gold: #ffcf4a;
+        --display: "Anton", Impact, "Arial Narrow", sans-serif;
+        --hud: "Chakra Petch", "Segoe UI", sans-serif;
+        --body: "Barlow", "Segoe UI", sans-serif;
+        --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+        --cut: 14px;
+        color-scheme: dark;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      [hidden] {
+        display: none !important;
+      }
+      body {
+        background: var(--bg);
+        color: var(--fg);
+        font-family: var(--body);
+        font-size: 15px;
+        line-height: 1.5;
+        overflow-x: hidden;
+      }
+      .stage {
+        position: relative;
+        min-height: 100vh;
+        isolation: isolate;
+      }
+      .stage::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -2;
+        background:
+          radial-gradient(
+            60% 50% at 50% 40%,
+            rgba(225, 29, 46, 0.28),
+            transparent 70%
+          ),
+          linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px) 0
+            0/32px 32px,
+          linear-gradient(
+              90deg,
+              rgba(255, 255, 255, 0.025) 1px,
+              transparent 1px
+            )
+            0 0/32px 32px,
+          var(--bg);
+      }
+      .glyph {
+        position: fixed;
+        inset: auto 0 8vh 0;
+        z-index: -1;
+        text-align: center;
+        font-family: var(--display);
+        font-size: min(34vw, 320px);
+        line-height: 0.9;
+        color: transparent;
+        -webkit-text-stroke: 2px rgba(225, 29, 46, 0.22);
+        pointer-events: none;
+        user-select: none;
+        white-space: nowrap;
+      }
+      .wrap {
+        max-width: 980px;
+        margin: 0 auto;
+        padding-block: 20px 48px;
+        padding-inline: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .cham {
+        clip-path: polygon(
+          var(--cut) 0,
+          100% 0,
+          100% calc(100% - var(--cut)),
+          calc(100% - var(--cut)) 100%,
+          0 100%,
+          0 var(--cut)
+        );
+        background: var(--line);
+        padding: 1px;
+      }
+      .cham > .in {
+        clip-path: inherit;
+        background: var(--panel);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        height: 100%;
+        padding: 16px;
+      }
+      .label {
+        font: 600 11px var(--hud);
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--red2);
+      }
+      .muted {
+        color: var(--muted);
+      }
+      button {
+        font-family: var(--hud);
+        cursor: pointer;
+      }
+      button:focus-visible,
+      input:focus-visible,
+      .slot:focus-visible {
+        outline: 2px solid var(--gold);
+        outline-offset: 3px;
+      }
+      .btn {
+        font: 700 15px var(--hud);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        border: 0;
+        padding: 12px 22px;
+        color: #fff;
+        background: var(--red);
+        clip-path: polygon(
+          10px 0,
+          100% 0,
+          100% calc(100% - 10px),
+          calc(100% - 10px) 100%,
+          0 100%,
+          0 10px
+        );
+        transition:
+          filter 0.15s,
+          transform 0.15s;
+      }
+      .btn:hover {
+        filter: brightness(1.15);
+      }
+      .btn:active {
+        transform: translateY(1px);
+      }
+      .btn.ghost {
+        background: var(--panel2);
+        color: var(--fg);
+        box-shadow: inset 0 0 0 1px var(--line2);
+      }
+      .btn.ok {
+        background: var(--ok);
+        color: #04150a;
+      }
+      .icon-btn {
+        width: 44px;
+        height: 44px;
+        border: 0;
+        background: var(--red);
+        color: #fff;
+        font-size: 20px;
+        clip-path: polygon(
+          8px 0,
+          100% 0,
+          100% calc(100% - 8px),
+          calc(100% - 8px) 100%,
+          0 100%,
+          0 8px
+        );
+      }
+      .icon-btn:disabled {
+        opacity: 0.35;
+        cursor: default;
+      }
 
-/* ---------- Menu ---------- */
-.brand{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
-.brand small{font:500 12px var(--hud);color:var(--muted);letter-spacing:.08em;max-width:26ch;display:block}
-.brand .k{font:700 14px var(--hud);letter-spacing:.4em;color:var(--red2)}
-.hero h1{font-family:var(--display);font-weight:400;font-size:clamp(46px,11vw,112px);line-height:.92;margin:4px 0 0;letter-spacing:.01em;text-transform:uppercase}
-.hero h1 span{color:var(--red);text-shadow:0 0 28px rgba(225,29,46,.55)}
-.hero p{max-width:56ch;margin:10px 0 0;color:var(--muted)}
-.carousel{display:flex;align-items:center;gap:12px}
-.track{flex:1;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;min-width:0}
-@media (max-width:900px){.track{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media (max-width:560px){.track{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.lcard{--cut:16px;cursor:pointer;transition:transform .2s;border:0;text-align:left;color:inherit;font:inherit;padding:1px}
-.lcard .in{display:flex;flex-direction:column;gap:6px;min-height:200px;padding:14px}
-.lcard .num{font-family:var(--display);font-size:46px;line-height:1;color:var(--line2)}
-.lcard h3{font:700 18px var(--hud);margin:0;text-transform:uppercase;letter-spacing:.03em}
-.lcard .tag{font:500 12px var(--hud);color:var(--muted)}
-.lcard .st{margin-top:auto;font:700 12px var(--hud);letter-spacing:.12em;text-transform:uppercase;padding:7px 10px;text-align:center;background:rgba(255,255,255,.06)}
-.lcard.sel{transform:translateY(-6px);background:var(--red)}
-.lcard.sel .in{background:linear-gradient(180deg,rgba(70,14,20,.95),rgba(28,8,11,.92))}
-.lcard.sel .num{color:var(--red2);text-shadow:0 0 18px rgba(255,77,90,.6)}
-.lcard.sel .st{background:var(--red);color:#fff}
-.lcard.done .st{background:rgba(47,211,107,.15);color:var(--ok)}
-.lcard.locked{opacity:.5}
-.lcard.locked .st{color:var(--muted)}
-.phases{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-@media (max-width:720px){.phases{grid-template-columns:1fr}}
-.phases .in h4{font:700 16px var(--hud);margin:4px 0 2px;text-transform:uppercase}
-.phases .in p{margin:0;font-size:13.5px;color:var(--muted)}
-.foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font:500 12px var(--hud);color:var(--muted)}
-.link{background:none;border:0;color:var(--muted);text-decoration:underline;font:500 12px var(--hud);padding:0}
+      /* ---------- Menu ---------- */
+      .brand {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .brand small {
+        font: 500 12px var(--hud);
+        color: var(--muted);
+        letter-spacing: 0.08em;
+        max-width: 26ch;
+        display: block;
+      }
+      .brand .k {
+        font: 700 14px var(--hud);
+        letter-spacing: 0.4em;
+        color: var(--red2);
+      }
+      .hero h1 {
+        font-family: var(--display);
+        font-weight: 400;
+        font-size: clamp(46px, 11vw, 112px);
+        line-height: 0.92;
+        margin: 4px 0 0;
+        letter-spacing: 0.01em;
+        text-transform: uppercase;
+      }
+      .hero h1 span {
+        color: var(--red);
+        text-shadow: 0 0 28px rgba(225, 29, 46, 0.55);
+      }
+      .hero p {
+        max-width: 56ch;
+        margin: 10px 0 0;
+        color: var(--muted);
+      }
+      .carousel {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .track {
+        flex: 1;
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 10px;
+        min-width: 0;
+      }
+      @media (max-width: 900px) {
+        .track {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+      @media (max-width: 560px) {
+        .track {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+      .lcard {
+        --cut: 16px;
+        cursor: pointer;
+        transition: transform 0.2s;
+        border: 0;
+        text-align: left;
+        color: inherit;
+        font: inherit;
+        padding: 1px;
+      }
+      .lcard .in {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-height: 200px;
+        padding: 14px;
+      }
+      .lcard .num {
+        font-family: var(--display);
+        font-size: 46px;
+        line-height: 1;
+        color: var(--line2);
+      }
+      .lcard h3 {
+        font: 700 16px var(--hud);
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+      .lcard .tag {
+        font: 500 12px var(--hud);
+        color: var(--muted);
+      }
+      .lcard .st {
+        margin-top: auto;
+        font: 700 12px var(--hud);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        padding: 7px 10px;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.06);
+      }
+      .lcard.sel {
+        transform: translateY(-6px);
+        background: var(--red);
+      }
+      .lcard.sel .in {
+        background: linear-gradient(
+          180deg,
+          rgba(70, 14, 20, 0.95),
+          rgba(28, 8, 11, 0.92)
+        );
+      }
+      .lcard.sel .num {
+        color: var(--red2);
+        text-shadow: 0 0 18px rgba(255, 77, 90, 0.6);
+      }
+      .lcard.sel .st {
+        background: var(--red);
+        color: #fff;
+      }
+      .lcard.done .st {
+        background: rgba(47, 211, 107, 0.15);
+        color: var(--ok);
+      }
+      .lcard.locked {
+        opacity: 0.5;
+      }
+      .lcard.locked .st {
+        color: var(--muted);
+      }
+      .phases {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+      @media (max-width: 720px) {
+        .phases {
+          grid-template-columns: 1fr;
+        }
+      }
+      .phases .in h4 {
+        font: 700 16px var(--hud);
+        margin: 4px 0 2px;
+        text-transform: uppercase;
+      }
+      .phases .in p {
+        margin: 0;
+        font-size: 13.5px;
+        color: var(--muted);
+      }
+      .foot {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        font: 500 12px var(--hud);
+        color: var(--muted);
+      }
+      .link {
+        background: none;
+        border: 0;
+        color: var(--muted);
+        text-decoration: underline;
+        font: 500 12px var(--hud);
+        padding: 0;
+      }
 
-/* ---------- Level ---------- */
-.hud{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.hud .t{flex:1;min-width:0}
-.hud .t b{display:block;font:700 20px var(--hud);text-transform:uppercase;letter-spacing:.03em}
-.prog{display:flex;gap:4px;margin-top:6px}
-.prog i{flex:1;height:5px;background:var(--line)}
-.prog i.on{background:var(--red);box-shadow:0 0 8px var(--red)}
-.prog i.ok{background:var(--ok)}
-.pts{font:700 22px var(--hud);font-variant-numeric:tabular-nums;padding:8px 14px;background:var(--panel2);box-shadow:inset 0 0 0 1px var(--line2)}
-.pts span{color:var(--gold)}
-.mission .in{display:flex;gap:14px;align-items:flex-start}
-.mission .big{font-family:var(--display);font-size:44px;line-height:.9;color:var(--red)}
-.mission p{margin:2px 0 0;font-size:16px}
-.mission p b{font-family:var(--mono);font-weight:500;color:var(--gold)}
-.sets{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
-.setcard .in{min-height:140px}
-.setcard h3{font-family:var(--display);font-weight:400;font-size:32px;margin:0 0 2px;line-height:1}
-.setcard .card{font:500 12px var(--mono);color:var(--muted)}
-.setcard.a h3{color:#ff6b77} .setcard.b h3{color:#ffd166}
-.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.el{font:600 17px var(--hud);min-width:52px;padding:10px 14px;border:0;color:var(--fg);background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px var(--line2);
-  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);transition:background .15s}
-.el:hover{background:rgba(225,29,46,.18)}
-.el.pick{background:var(--red);box-shadow:none;color:#fff}
-.el.on{background:var(--gold);color:#1a1200;box-shadow:none}
-.arena svg{width:100%;height:auto;display:block;touch-action:none;user-select:none;-webkit-user-select:none}
-.answer .in{display:flex;flex-direction:column;gap:10px}
-.rel{font:500 15px var(--mono);overflow-x:auto;white-space:nowrap;padding:10px 12px;background:rgba(0,0,0,.35);box-shadow:inset 0 0 0 1px var(--line)}
-.rel .k{color:var(--red2)}
-.tray{display:flex;gap:8px;flex-wrap:wrap;min-height:48px;padding:8px;background:rgba(0,0,0,.35);box-shadow:inset 0 0 0 1px var(--line)}
-.tray:empty::before{content:attr(data-empty);color:var(--muted);font-size:13px;align-self:center;padding-left:4px}
-.pair{font:500 15px var(--mono);border:0;padding:8px 12px;color:#1a1200;background:var(--gold);clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)}
-.q{font:700 17px var(--hud);margin:0}
-.q b{color:var(--gold);font-family:var(--mono);font-weight:500}
-.cardin{display:flex;gap:10px;align-items:center;font:600 17px var(--mono)}
-.cardin input{font:600 18px var(--mono);width:84px;padding:8px 10px;border:0;background:rgba(0,0,0,.4);color:var(--fg);box-shadow:inset 0 0 0 1px var(--line2)}
-.actions{display:flex;gap:10px;flex-wrap:wrap}
-.hint{font-size:13.5px;color:var(--muted);margin:0}
-.msg{min-height:1.5em;font:600 15px var(--hud)}
-.msg.bad{color:var(--red2)}
-.shake{animation:shake .35s}
-@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+      /* ---------- Level ---------- */
+      .hud {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .hud .t {
+        flex: 1;
+        min-width: 0;
+      }
+      .hud .t b {
+        display: block;
+        font: 700 20px var(--hud);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+      .prog {
+        display: flex;
+        gap: 4px;
+        margin-top: 6px;
+      }
+      .prog i {
+        flex: 1;
+        height: 5px;
+        background: var(--line);
+      }
+      .prog i.on {
+        background: var(--red);
+        box-shadow: 0 0 8px var(--red);
+      }
+      .prog i.ok {
+        background: var(--ok);
+      }
+      .pts {
+        font: 700 22px var(--hud);
+        font-variant-numeric: tabular-nums;
+        padding: 8px 14px;
+        background: var(--panel2);
+        box-shadow: inset 0 0 0 1px var(--line2);
+      }
+      .pts span {
+        color: var(--gold);
+      }
+      .mission .in {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+      }
+      .mission .big {
+        font-family: var(--display);
+        font-size: 44px;
+        line-height: 0.9;
+        color: var(--red);
+      }
+      .mission p {
+        margin: 2px 0 0;
+        font-size: 16px;
+      }
+      .mission p b {
+        font-family: var(--mono);
+        font-weight: 500;
+        color: var(--gold);
+      }
+      .sets {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 14px;
+      }
+      .setcard .in {
+        min-height: 140px;
+      }
+      .setcard h3 {
+        font-family: var(--display);
+        font-weight: 400;
+        font-size: 32px;
+        margin: 0 0 2px;
+        line-height: 1;
+      }
+      .setcard .card {
+        font: 500 12px var(--mono);
+        color: var(--muted);
+      }
+      .setcard.a h3 {
+        color: #ff6b77;
+      }
+      .setcard.b h3 {
+        color: #ffd166;
+      }
+      .chips {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+      }
+      .el {
+        font: 600 17px var(--hud);
+        min-width: 52px;
+        padding: 10px 14px;
+        border: 0;
+        color: var(--fg);
+        background: rgba(255, 255, 255, 0.06);
+        box-shadow: inset 0 0 0 1px var(--line2);
+        clip-path: polygon(
+          8px 0,
+          100% 0,
+          100% calc(100% - 8px),
+          calc(100% - 8px) 100%,
+          0 100%,
+          0 8px
+        );
+        transition: background 0.15s;
+      }
+      .el:hover {
+        background: rgba(225, 29, 46, 0.18);
+      }
+      .el.pick {
+        background: var(--red);
+        box-shadow: none;
+        color: #fff;
+      }
+      .el.on {
+        background: var(--gold);
+        color: #1a1200;
+        box-shadow: none;
+      }
+      .arena svg {
+        width: 100%;
+        height: auto;
+        display: block;
+        touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      .answer .in {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .rel {
+        font: 500 15px var(--mono);
+        overflow-x: auto;
+        white-space: nowrap;
+        padding: 10px 12px;
+        background: rgba(0, 0, 0, 0.35);
+        box-shadow: inset 0 0 0 1px var(--line);
+      }
+      .rel .k {
+        color: var(--red2);
+      }
+      .tray {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        min-height: 48px;
+        padding: 8px;
+        background: rgba(0, 0, 0, 0.35);
+        box-shadow: inset 0 0 0 1px var(--line);
+      }
+      .tray:empty::before {
+        content: attr(data-empty);
+        color: var(--muted);
+        font-size: 13px;
+        align-self: center;
+        padding-left: 4px;
+      }
+      .pair {
+        font: 500 15px var(--mono);
+        border: 0;
+        padding: 8px 12px;
+        color: #1a1200;
+        background: var(--gold);
+        clip-path: polygon(
+          6px 0,
+          100% 0,
+          100% calc(100% - 6px),
+          calc(100% - 6px) 100%,
+          0 100%,
+          0 6px
+        );
+      }
+      .q {
+        font: 700 17px var(--hud);
+        margin: 0;
+      }
+      .q b {
+        color: var(--gold);
+        font-family: var(--mono);
+        font-weight: 500;
+      }
+      .cardin {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        font: 600 17px var(--mono);
+      }
+      .cardin input {
+        font: 600 18px var(--mono);
+        width: 84px;
+        padding: 8px 10px;
+        border: 0;
+        background: rgba(0, 0, 0, 0.4);
+        color: var(--fg);
+        box-shadow: inset 0 0 0 1px var(--line2);
+      }
+      .actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .hint {
+        font-size: 13.5px;
+        color: var(--muted);
+        margin: 0;
+      }
+      .msg {
+        min-height: 1.5em;
+        font: 600 15px var(--hud);
+      }
+      .msg.bad {
+        color: var(--red2);
+      }
+      .shake {
+        animation: shake 0.35s;
+      }
+      @keyframes shake {
+        20%,
+        60% {
+          transform: translateX(-6px);
+        }
+        40%,
+        80% {
+          transform: translateX(6px);
+        }
+      }
 
-.visual .in{display:flex;justify-content:center}
-.visual svg{width:100%;max-width:620px;height:auto;display:block}
-.opts{display:flex;flex-direction:column;gap:8px}
-.opt{display:flex;gap:12px;align-items:center;text-align:left;font:500 16px var(--mono);color:var(--fg);border:0;padding:12px 14px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px var(--line2);
-  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
-.opt:hover{background:rgba(225,29,46,.16)}
-.opt .n{font:700 15px var(--hud);color:var(--red2);min-width:1.5em}
-.opt[aria-pressed="true"]{background:var(--gold);color:#1a1200;box-shadow:none}
-.opt[aria-pressed="true"] .n{color:#1a1200}
-.qdots{display:flex;gap:6px}
-.qdots i{width:22px;height:5px;background:var(--line)}
-.qdots i.on{background:var(--red)} .qdots i.ok{background:var(--ok)}
+      .visual .in {
+        display: flex;
+        justify-content: center;
+      }
+      .visual svg {
+        width: 100%;
+        max-width: 620px;
+        height: auto;
+        display: block;
+      }
+      .opts {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .opt {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        text-align: left;
+        font: 500 16px var(--mono);
+        color: var(--fg);
+        border: 0;
+        padding: 12px 14px;
+        background: rgba(255, 255, 255, 0.05);
+        box-shadow: inset 0 0 0 1px var(--line2);
+        clip-path: polygon(
+          8px 0,
+          100% 0,
+          100% calc(100% - 8px),
+          calc(100% - 8px) 100%,
+          0 100%,
+          0 8px
+        );
+      }
+      .opt:hover {
+        background: rgba(225, 29, 46, 0.16);
+      }
+      .opt .n {
+        font: 700 15px var(--hud);
+        color: var(--red2);
+        min-width: 1.5em;
+      }
+      .opt[aria-pressed="true"] {
+        background: var(--gold);
+        color: #1a1200;
+        box-shadow: none;
+      }
+      .opt[aria-pressed="true"] .n {
+        color: #1a1200;
+      }
+      .qdots {
+        display: flex;
+        gap: 6px;
+      }
+      .qdots i {
+        width: 22px;
+        height: 5px;
+        background: var(--line);
+      }
+      .qdots i.on {
+        background: var(--red);
+      }
+      .qdots i.ok {
+        background: var(--ok);
+      }
 
-/* ---------- Overlay ---------- */
-.ov{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:16px;background:rgba(5,2,3,.78);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-.modal{width:min(560px,100%);--cut:22px;background:var(--red)}
-.modal .in{display:flex;flex-direction:column;gap:12px;padding:24px;background:linear-gradient(180deg,rgba(60,12,18,.97),rgba(18,6,8,.97))}
-.modal h2{font-family:var(--display);font-weight:400;font-size:56px;line-height:.95;margin:0;text-transform:uppercase}
-.modal h2 span{color:var(--ok)}
-.plus{font:700 22px var(--hud);color:var(--gold)}
-.theory{padding:12px 14px;background:rgba(0,0,0,.35);box-shadow:inset 0 0 0 1px var(--line2);font-size:15px}
-.theory b{color:var(--gold)}
-.theory .f{display:block;font:500 16px var(--mono);color:var(--fg);margin-top:8px}
-.stars{font-size:40px;letter-spacing:6px;color:var(--gold)}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-</style>
-</head>
-<body>
+      /* ---------- Overlay ---------- */
+      .ov {
+        position: fixed;
+        inset: 0;
+        z-index: 20;
+        display: grid;
+        place-items: center;
+        padding: 16px;
+        background: rgba(5, 2, 3, 0.78);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+      }
+      .modal {
+        width: min(560px, 100%);
+        --cut: 22px;
+        background: var(--red);
+      }
+      .modal .in {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 24px;
+        background: linear-gradient(
+          180deg,
+          rgba(60, 12, 18, 0.97),
+          rgba(18, 6, 8, 0.97)
+        );
+      }
+      .modal h2 {
+        font-family: var(--display);
+        font-weight: 400;
+        font-size: 56px;
+        line-height: 0.95;
+        margin: 0;
+        text-transform: uppercase;
+      }
+      .modal h2 span {
+        color: var(--ok);
+      }
+      .plus {
+        font: 700 22px var(--hud);
+        color: var(--gold);
+      }
+      .theory {
+        padding: 12px 14px;
+        background: rgba(0, 0, 0, 0.35);
+        box-shadow: inset 0 0 0 1px var(--line2);
+        font-size: 15px;
+      }
+      .theory b {
+        color: var(--gold);
+      }
+      .theory .f {
+        display: block;
+        font: 500 16px var(--mono);
+        color: var(--fg);
+        margin-top: 8px;
+      }
+      .stars {
+        font-size: 40px;
+        letter-spacing: 6px;
+        color: var(--gold);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="stage">
+      <div class="glyph" id="glyph" aria-hidden="true">A ∪ B</div>
+      <div class="wrap" id="app"></div>
+    </div>
+    <div class="ov" id="ov" hidden></div>
 
-<div class="stage">
-  <div class="glyph" id="glyph" aria-hidden="true">A ∪ B</div>
-  <div class="wrap" id="app"></div>
-</div>
-<div class="ov" id="ov" hidden></div>
+    <script>
+      (() => {
+        const LEVELS = [
+          {
+            code: "01",
+            name: "Pares ordenados",
+            tag: "Tutorial",
+            type: "link",
+            glyph: "(a,b)",
+            mision:
+              "Une cada elemento de A con su pareja en B para formar <b>(a,1)</b>, <b>(b,3)</b> y <b>(c,2)</b>.",
+            hint: "Arrastra desde una caja de A hasta una de B, o toca una de A y luego una de B. Toca una línea para borrarla.",
+            A: ["a", "b", "c"],
+            B: ["1", "2", "3"],
+            answer: [
+              ["a", "1"],
+              ["b", "3"],
+              ["c", "2"],
+            ],
+            theory:
+              "Una <b>relación</b> R de A en B es un conjunto de <b>pares ordenados</b> (x, y), donde x ∈ A e y ∈ B.",
+            formula: "R = {(a,1), (b,3), (c,2)} ⊆ A × B",
+          },
+          {
+            code: "02",
+            name: "Relaciones",
+            tag: "Palabras",
+            type: "link",
+            glyph: "R",
+            mision:
+              "Relaciona cada <b>lugar</b> de la casa con la <b>acción</b> que normalmente se hace ahí.",
+            hint: "¿Qué haces en la cocina? ¿Y en el dormitorio?",
+            A: ["Cocina", "Dormitorio", "Baño"],
+            B: ["Ducharse", "Cocinar", "Dormir"],
+            answer: [
+              ["Cocina", "Cocinar"],
+              ["Dormitorio", "Dormir"],
+              ["Baño", "Ducharse"],
+            ],
+            theory:
+              "Los elementos de un conjunto no tienen que ser números. Como cada lugar tiene exactamente una acción y todas se usan, esta relación además es una <b>función biyectiva</b>.",
+            formula:
+              "R = {(Cocina, Cocinar), (Dormitorio, Dormir), (Baño, Ducharse)}",
+          },
+          {
+            code: "03",
+            name: "Unión e intersección",
+            tag: "Operaciones",
+            type: "pick",
+            glyph: "∪ ∩",
+            mision:
+              "Mira las tarjetas de A y B y arma el conjunto que pide cada pregunta tocando los números.",
+            hint: "Intersección: lo que está en LOS DOS. Unión: lo que está en A O en B, sin repetir.",
+            A: [1, 2, 3, 4],
+            B: [3, 4, 5, 6],
+            pool: [1, 2, 3, 4, 5, 6, 7],
+            questions: [
+              {
+                label: "A ∩ B",
+                text: "¿Qué elementos están en <b>A ∩ B</b>?",
+                answer: [3, 4],
+              },
+              {
+                label: "A ∪ B",
+                text: "¿Qué elementos están en <b>A ∪ B</b>?",
+                answer: [1, 2, 3, 4, 5, 6],
+              },
+            ],
+            theory:
+              "<b>A ∩ B</b> = {3, 4} son los elementos comunes. <b>A ∪ B</b> = {1, …, 6} son todos, sin repetir. El 7 no está en ninguno.",
+            formula: "|A ∪ B| = |A| + |B| − |A ∩ B| = 4 + 4 − 2 = 6",
+          },
+          {
+            code: "04",
+            name: "Producto cartesiano",
+            tag: "A × B",
+            type: "pairs",
+            glyph: "A×B",
+            mision:
+              "Arma <b>todos</b> los pares posibles de A × B y escribe cuántos son.",
+            hint: "Toca un elemento de A y luego uno de B para crear el par. Cada elemento de A va con cada elemento de B.",
+            A: ["x", "y"],
+            B: ["1", "2", "3"],
+            answer: [
+              ["x", "1"],
+              ["x", "2"],
+              ["x", "3"],
+              ["y", "1"],
+              ["y", "2"],
+              ["y", "3"],
+            ],
+            card: 6,
+            theory:
+              "El <b>producto cartesiano</b> A × B tiene todos los pares (a, b). Por el <b>principio de multiplicación</b>, su cardinalidad es |A| · |B|.",
+            formula: "|A × B| = |A| · |B| = 2 · 3 = 6",
+          },
+          {
+            code: "05",
+            name: "Identifica la relación",
+            tag: "Diagrama",
+            type: "quiz",
+            glyph: "→",
+            visual: "arrows",
+            mision:
+              "Observa el diagrama de flechas y elige la relación que representa.",
+            hint: "Cada flecha es un par (origen, destino). Sigue cada flecha desde A hasta B.",
+            questions: [
+              {
+                text: "¿Qué relación muestra el diagrama?",
+                options: [
+                  "R = {(6,4), (7,1)}",
+                  "R = {(6,1), (8,5)}",
+                  "R = {(6,1), (8,4)}",
+                ],
+                answer: 2,
+                why: "Las flechas salen de 6 hacia 1 y de 8 hacia 4. El 7 y el 5 no tienen flechas.",
+              },
+            ],
+            theory:
+              "En un <b>diagrama sagital</b> (de flechas), cada flecha de x hacia y representa el par ordenado (x, y). Los elementos sin flecha no aparecen en la relación.",
+            formula:
+              "R = {(6,1), (8,4)}  ·  Dom(R) = {6, 8}  ·  Rango(R) = {1, 4}",
+          },
+          {
+            code: "06",
+            name: "Lee el diagrama de Venn",
+            tag: "Venn",
+            type: "quiz",
+            glyph: "∩",
+            visual: "venn",
+            mision: "Observa el diagrama de Venn y responde las dos preguntas.",
+            hint: "La zona resaltada es la que comparten los dos círculos. Un elemento de esa zona pertenece a A y también a B.",
+            questions: [
+              {
+                text: "¿Qué representa la zona resaltada?",
+                options: ["A ∪ B", "A ∩ B"],
+                answer: 1,
+                why: "La zona resaltada es la parte común de los dos círculos: la intersección.",
+              },
+              {
+                text: "¿Cuáles son los conjuntos?",
+                options: [
+                  "A = {1, 2, 6}   B = {7, 9, 11}",
+                  "A = {1, 2, 3, 6}   B = {3, 7, 9, 11}",
+                  "A = {1236}   B = {37911}",
+                ],
+                answer: 1,
+                why: "El 3 está en los dos círculos, así que pertenece a A y a B. Y los elementos se separan con comas.",
+              },
+            ],
+            theory:
+              "En un diagrama de Venn, un elemento en la zona común pertenece a <b>los dos</b> conjuntos. Aquí A ∩ B = {3} y A ∪ B = {1, 2, 3, 6, 7, 9, 11}.",
+            formula: "|A ∪ B| = |A| + |B| − |A ∩ B| = 4 + 4 − 1 = 7",
+          },
+        ];
+        const COLORS = [
+          "#ff4d5a",
+          "#ffd166",
+          "#4dabf7",
+          "#2fd36b",
+          "#c77dff",
+          "#ff922b",
+        ];
 
-<script>
-(() => {
-const LEVELS = [
-  { code:'01', name:'Pares ordenados', tag:'Tutorial', type:'link', glyph:'(a,b)',
-    mision:'Une cada elemento de A con su pareja en B para formar <b>(a,1)</b>, <b>(b,3)</b> y <b>(c,2)</b>.',
-    hint:'Arrastra desde una caja de A hasta una de B, o toca una de A y luego una de B. Toca una línea para borrarla.',
-    A:['a','b','c'], B:['1','2','3'], answer:[['a','1'],['b','3'],['c','2']],
-    theory:'Una <b>relación</b> R de A en B es un conjunto de <b>pares ordenados</b> (x, y), donde x ∈ A e y ∈ B.',
-    formula:'R = {(a,1), (b,3), (c,2)} ⊆ A × B' },
-  { code:'02', name:'Relaciones', tag:'Palabras', type:'link', glyph:'R',
-    mision:'Relaciona cada <b>lugar</b> de la casa con la <b>acción</b> que normalmente se hace ahí.',
-    hint:'¿Qué haces en la cocina? ¿Y en el dormitorio?',
-    A:['Cocina','Dormitorio','Baño'], B:['Ducharse','Cocinar','Dormir'], answer:[['Cocina','Cocinar'],['Dormitorio','Dormir'],['Baño','Ducharse']],
-    theory:'Los elementos de un conjunto no tienen que ser números. Como cada lugar tiene exactamente una acción y todas se usan, esta relación además es una <b>función biyectiva</b>.',
-    formula:'R = {(Cocina, Cocinar), (Dormitorio, Dormir), (Baño, Ducharse)}' },
-  { code:'03', name:'Unión e intersección', tag:'Operaciones', type:'pick', glyph:'∪ ∩',
-    mision:'Mira las tarjetas de A y B y arma el conjunto que pide cada pregunta tocando los números.',
-    hint:'Intersección: lo que está en LOS DOS. Unión: lo que está en A O en B, sin repetir.',
-    A:[1,2,3,4], B:[3,4,5,6], pool:[1,2,3,4,5,6,7],
-    questions:[ {label:'A ∩ B', text:'¿Qué elementos están en <b>A ∩ B</b>?', answer:[3,4]},
-                {label:'A ∪ B', text:'¿Qué elementos están en <b>A ∪ B</b>?', answer:[1,2,3,4,5,6]} ],
-    theory:'<b>A ∩ B</b> = {3, 4} son los elementos comunes. <b>A ∪ B</b> = {1, …, 6} son todos, sin repetir. El 7 no está en ninguno.',
-    formula:'|A ∪ B| = |A| + |B| − |A ∩ B| = 4 + 4 − 2 = 6' },
-  { code:'04', name:'Producto cartesiano', tag:'A × B', type:'pairs', glyph:'A×B',
-    mision:'Arma <b>todos</b> los pares posibles de A × B y escribe cuántos son.',
-    hint:'Toca un elemento de A y luego uno de B para crear el par. Cada elemento de A va con cada elemento de B.',
-    A:['x','y'], B:['1','2','3'], answer:[['x','1'],['x','2'],['x','3'],['y','1'],['y','2'],['y','3']], card:6,
-    theory:'El <b>producto cartesiano</b> A × B tiene todos los pares (a, b). Por el <b>principio de multiplicación</b>, su cardinalidad es |A| · |B|.',
-    formula:'|A × B| = |A| · |B| = 2 · 3 = 6' },
-  { code:'05', name:'Identifica la relación', tag:'Diagrama', type:'quiz', glyph:'→', visual:'arrows',
-    mision:'Observa el diagrama de flechas y elige la relación que representa.',
-    hint:'Cada flecha es un par (origen, destino). Sigue cada flecha desde A hasta B.',
-    questions:[ {text:'¿Qué relación muestra el diagrama?', options:['R = {(6,4), (7,1)}','R = {(6,1), (8,5)}','R = {(6,1), (8,4)}'], answer:2,
-                 why:'Las flechas salen de 6 hacia 1 y de 8 hacia 4. El 7 y el 5 no tienen flechas.'} ],
-    theory:'En un <b>diagrama sagital</b> (de flechas), cada flecha de x hacia y representa el par ordenado (x, y). Los elementos sin flecha no aparecen en la relación.',
-    formula:'R = {(6,1), (8,4)}  ·  Dom(R) = {6, 8}  ·  Rango(R) = {1, 4}' },
-  { code:'06', name:'Lee el diagrama de Venn', tag:'Venn', type:'quiz', glyph:'∩', visual:'venn',
-    mision:'Observa el diagrama de Venn y responde las dos preguntas.',
-    hint:'La zona resaltada es la que comparten los dos círculos. Un elemento de esa zona pertenece a A y también a B.',
-    questions:[ {text:'¿Qué representa la zona resaltada?', options:['A ∪ B','A ∩ B'], answer:1,
-                 why:'La zona resaltada es la parte común de los dos círculos: la intersección.'},
-                {text:'¿Cuáles son los conjuntos?', options:['A = {1, 2, 6}   B = {7, 9, 11}','A = {1, 2, 3, 6}   B = {3, 7, 9, 11}','A = {1236}   B = {37911}'], answer:1,
-                 why:'El 3 está en los dos círculos, así que pertenece a A y a B. Y los elementos se separan con comas.'} ],
-    theory:'En un diagrama de Venn, un elemento en la zona común pertenece a <b>los dos</b> conjuntos. Aquí A ∩ B = {3} y A ∪ B = {1, 2, 3, 6, 7, 9, 11}.',
-    formula:'|A ∪ B| = |A| + |B| − |A ∩ B| = 4 + 4 − 1 = 7' },
-];
-const COLORS = ['#ff4d5a','#ffd166','#4dabf7','#2fd36b','#c77dff','#ff922b'];
+        let screen = "menu",
+          cur = 0,
+          sel = 0,
+          score = 0,
+          unlockAll = false;
+        const done = new Set();
+        const ST = LEVELS.map(() => ({
+          pairs: [],
+          q: 0,
+          pick: [],
+          fromA: null,
+          card: "",
+        }));
+        const $ = (id) => document.getElementById(id);
+        const app = $("app");
+        const key = (a, b) => a + "|" + b;
+        const fmt = (l) =>
+          "{" + l.map(([a, b]) => `(${a}, ${b})`).join(", ") + "}";
+        const unlocked = (i) =>
+          unlockAll || i === 0 || done.has(i - 1) || done.has(i);
 
-let screen = 'menu', cur = 0, sel = 0, score = 0, unlockAll = false;
-const done = new Set();
-const ST = LEVELS.map(() => ({ pairs: [], q: 0, pick: [], fromA: null, card: '' }));
-const $ = id => document.getElementById(id);
-const app = $('app');
-const key = (a, b) => a + '|' + b;
-const fmt = l => '{' + l.map(([a, b]) => `(${a}, ${b})`).join(', ') + '}';
-const unlocked = i => unlockAll || i === 0 || done.has(i - 1) || done.has(i);
-
-/* ================= MENU ================= */
-function menu() {
-  screen = 'menu'; $('glyph').textContent = 'A ∪ B';
-  const card = (L, i) => {
-    const st = done.has(i) ? 'Completado ✓' : unlocked(i) ? 'Jugar' : 'Bloqueado';
-    return `<button class="cham lcard${i === sel ? ' sel' : ''}${done.has(i) ? ' done' : ''}${unlocked(i) ? '' : ' locked'}" data-i="${i}" id="lc-${i}" aria-label="Nivel ${L.code}: ${L.name}">
+        /* ================= MENU ================= */
+        function menu() {
+          screen = "menu";
+          $("glyph").textContent = "A ∪ B";
+          const card = (L, i) => {
+            const st = done.has(i)
+              ? "Completado ✓"
+              : unlocked(i)
+                ? "Jugar"
+                : "Bloqueado";
+            return `<button class="cham lcard${i === sel ? " sel" : ""}${done.has(i) ? " done" : ""}${unlocked(i) ? "" : " locked"}" data-i="${i}" id="lc-${i}" aria-label="Nivel ${L.code}: ${L.name}">
       <div class="in"><div class="num">${L.code}</div><h3>${L.name}</h3><div class="tag">${L.tag}</div><div class="st">${st}</div></div></button>`;
-  };
-  app.innerHTML = `
+          };
+          app.innerHTML = `
     <div class="brand"><small>Matemática discreta · MATH-112<br>Conjuntos, relaciones y funciones</small><span class="k">A × B</span></div>
     <section class="hero"><div class="label">Juego educativo</div>
       <h1>Conecta<br><span>Conjuntos</span></h1>
       <p>Seis niveles para dominar pares ordenados, relaciones, operaciones entre conjuntos, producto cartesiano y lectura de diagramas. Cada acierto suma 100 puntos y desbloquea el siguiente nivel.</p></section>
     <div class="carousel">
-      <button class="icon-btn" id="prev" aria-label="Nivel anterior" ${sel === 0 ? 'disabled' : ''}>←</button>
-      <div class="track">${LEVELS.map(card).join('')}</div>
-      <button class="icon-btn" id="nextc" aria-label="Nivel siguiente" ${sel === LEVELS.length - 1 ? 'disabled' : ''}>→</button>
+      <button class="icon-btn" id="prev" aria-label="Nivel anterior" ${sel === 0 ? "disabled" : ""}>←</button>
+      <div class="track">${LEVELS.map(card).join("")}</div>
+      <button class="icon-btn" id="nextc" aria-label="Nivel siguiente" ${sel === LEVELS.length - 1 ? "disabled" : ""}>→</button>
     </div>
-    <div class="actions"><button class="btn" id="play">${done.has(sel) ? 'Repetir' : 'Jugar'} nivel ${LEVELS[sel].code}</button>
+    <div class="actions"><button class="btn" id="play">${done.has(sel) ? "Repetir" : "Jugar"} nivel ${LEVELS[sel].code}</button>
       <span class="pts"><span>${score}</span> pts</span></div>
     <div class="phases">
       <div class="cham"><div class="in"><div class="label">Fase 01</div><h4>Mira</h4><p>Cada nivel muestra el conjunto A y el conjunto B en tarjetas separadas.</p></div></div>
       <div class="cham"><div class="in"><div class="label">Fase 02</div><h4>Responde</h4><p>Une con líneas, toca elementos o arma pares según el nivel.</p></div></div>
       <div class="cham"><div class="in"><div class="label">Fase 03</div><h4>Aprende</h4><p>Al acertar ves la teoría y la fórmula detrás de la respuesta.</p></div></div>
     </div>
-    <div class="foot"><span>Proyecto colaborativo · Jala University</span><button class="link" id="unlock">${unlockAll ? 'Bloquear niveles' : 'Desbloquear todos (modo presentación)'}</button></div>`;
-  app.querySelectorAll('.lcard').forEach(b => b.onclick = () => { const i = +b.dataset.i; if (i === sel && unlocked(i)) return start(i); sel = i; menu(); });
-  $('prev').onclick = () => { sel = Math.max(0, sel - 1); menu(); };
-  $('nextc').onclick = () => { sel = Math.min(LEVELS.length - 1, sel + 1); menu(); };
-  $('play').onclick = () => unlocked(sel) ? start(sel) : toastLocked();
-  $('unlock').onclick = () => { unlockAll = !unlockAll; menu(); };
-}
-function toastLocked() { const b = $('play'); b.textContent = 'Completa el nivel anterior'; b.classList.add('shake'); setTimeout(menu, 1200); }
+    <div class="foot"><span>Proyecto colaborativo · Jala University</span><button class="link" id="unlock">${unlockAll ? "Bloquear niveles" : "Desbloquear todos (modo presentación)"}</button></div>`;
+          app.querySelectorAll(".lcard").forEach(
+            (b) =>
+              (b.onclick = () => {
+                const i = +b.dataset.i;
+                if (i === sel && unlocked(i)) return start(i);
+                sel = i;
+                menu();
+              }),
+          );
+          $("prev").onclick = () => {
+            sel = Math.max(0, sel - 1);
+            menu();
+          };
+          $("nextc").onclick = () => {
+            sel = Math.min(LEVELS.length - 1, sel + 1);
+            menu();
+          };
+          $("play").onclick = () =>
+            unlocked(sel) ? start(sel) : toastLocked();
+          $("unlock").onclick = () => {
+            unlockAll = !unlockAll;
+            menu();
+          };
+        }
+        function toastLocked() {
+          const b = $("play");
+          b.textContent = "Completa el nivel anterior";
+          b.classList.add("shake");
+          setTimeout(menu, 1200);
+        }
 
-/* ================= LEVEL ================= */
-function start(i) { cur = i; sel = i; screen = 'level'; level(); }
-function level() {
-  const L = LEVELS[cur], st = ST[cur];
-  $('glyph').textContent = L.glyph;
-  app.innerHTML = `
+        /* ================= LEVEL ================= */
+        function start(i) {
+          cur = i;
+          sel = i;
+          screen = "level";
+          level();
+        }
+        function level() {
+          const L = LEVELS[cur],
+            st = ST[cur];
+          $("glyph").textContent = L.glyph;
+          app.innerHTML = `
     <div class="hud">
       <button class="icon-btn" id="back" aria-label="Volver al menú">☰</button>
       <div class="t"><span class="label">Nivel ${L.code} · ${L.tag}</span><b>${L.name}</b>
-        <div class="prog">${LEVELS.map((_, j) => `<i class="${done.has(j) ? 'ok' : j === cur ? 'on' : ''}"></i>`).join('')}</div></div>
+        <div class="prog">${LEVELS.map((_, j) => `<i class="${done.has(j) ? "ok" : j === cur ? "on" : ""}"></i>`).join("")}</div></div>
       <div class="pts"><span>${score}</span> pts</div>
     </div>
     <div class="cham mission"><div class="in"><div class="big">${L.code}</div><div><div class="label">Misión</div><p>${L.mision}</p></div></div></div>
@@ -261,131 +1008,406 @@ function level() {
     <div class="actions"><button class="btn" id="check">Comprobar</button><button class="btn ghost" id="reset">Reiniciar</button><button class="btn ghost" id="hintb">Pista</button></div>
     <p class="hint" id="hint" hidden>${L.hint}</p>
     <div class="msg" id="msg" aria-live="polite"></div>`;
-  $('back').onclick = menu;
-  $('reset').onclick = () => { ST[cur] = { pairs: [], q: 0, pick: [], fromA: null, card: '' }; level(); };
-  $('hintb').onclick = () => { $('hint').hidden = !$('hint').hidden; };
-  if (L.type === 'link') linkLevel(L, st); else if (L.type === 'pick') pickLevel(L, st); else if (L.type === 'quiz') quizLevel(L, st); else pairsLevel(L, st);
-}
-const setCards = (L, st, clickable) => `
+          $("back").onclick = menu;
+          $("reset").onclick = () => {
+            ST[cur] = { pairs: [], q: 0, pick: [], fromA: null, card: "" };
+            level();
+          };
+          $("hintb").onclick = () => {
+            $("hint").hidden = !$("hint").hidden;
+          };
+          if (L.type === "link") linkLevel(L, st);
+          else if (L.type === "pick") pickLevel(L, st);
+          else if (L.type === "quiz") quizLevel(L, st);
+          else pairsLevel(L, st);
+        }
+        const setCards = (L, st, clickable) => `
   <div class="sets">
     <div class="cham setcard a"><div class="in"><div class="label">Conjunto</div><h3>A</h3><div class="card">|A| = ${L.A.length}</div>
-      <div class="chips">${L.A.map(v => `<button class="el${st.fromA === String(v) ? ' pick' : ''}" data-a="${v}" ${clickable ? '' : 'tabindex="-1"'}>${v}</button>`).join('')}</div></div></div>
+      <div class="chips">${L.A.map((v) => `<button class="el${st.fromA === String(v) ? " pick" : ""}" data-a="${v}" ${clickable ? "" : 'tabindex="-1"'}>${v}</button>`).join("")}</div></div></div>
     <div class="cham setcard b"><div class="in"><div class="label">Conjunto</div><h3>B</h3><div class="card">|B| = ${L.B.length}</div>
-      <div class="chips">${L.B.map(v => `<button class="el" data-b="${v}" ${clickable ? '' : 'tabindex="-1"'}>${v}</button>`).join('')}</div></div></div>
+      <div class="chips">${L.B.map((v) => `<button class="el" data-b="${v}" ${clickable ? "" : 'tabindex="-1"'}>${v}</button>`).join("")}</div></div></div>
   </div>`;
-function bad(text) { const m = $('msg'); m.className = 'msg bad'; m.innerHTML = text; const p = $('play'); p.classList.remove('shake'); void p.offsetWidth; p.classList.add('shake'); }
-function clearMsg() { $('msg').className = 'msg'; $('msg').textContent = ''; }
+        function bad(text) {
+          const m = $("msg");
+          m.className = "msg bad";
+          m.innerHTML = text;
+          const p = $("play");
+          p.classList.remove("shake");
+          void p.offsetWidth;
+          p.classList.add("shake");
+        }
+        function clearMsg() {
+          $("msg").className = "msg";
+          $("msg").textContent = "";
+        }
 
-/* ---- Level type: link (lines between card A and card B) ---- */
-function linkLevel(L, st) {
-  const NS = 'http://www.w3.org/2000/svg', mk = (t, a, p) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; };
-  const n = Math.max(L.A.length, L.B.length), W = 760, rowH = 76, H = n * rowH + 96, bw = 190, bh = 52;
-  const pA = { x: 16, w: 250 }, pB = { x: W - 266, w: 250 };
-  const cham = (x, y, w, h, c) => `${x + c},${y} ${x + w},${y} ${x + w},${y + h - c} ${x + w - c},${y + h} ${x},${y + h} ${x},${y + c}`;
-  $('play').innerHTML = `<div class="arena"></div>`;
-  const svg = mk('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'Tablero: une elementos de A con elementos de B' });
-  $('play').firstChild.appendChild(svg);
-  [[pA, 'A', '#ff6b77'], [pB, 'B', '#ffd166']].forEach(([p, name, col]) => {
-    mk('polygon', { points: cham(p.x, 8, p.w, H - 16, 16), fill: 'rgba(28,8,11,.82)', stroke: '#5b1c23', 'stroke-width': 1.5 }, svg);
-    const t = mk('text', { x: p.x + 18, y: 50, fill: col, 'font-family': 'Anton, Impact, sans-serif', 'font-size': 30 }, svg); t.textContent = name;
-    const s = mk('text', { x: p.x + 46, y: 49, fill: '#a98d90', 'font-family': 'JetBrains Mono, monospace', 'font-size': 12 }, svg); s.textContent = `|${name}| = ${(name === 'A' ? L.A : L.B).length}`;
-  });
-  const gLines = mk('g', {}, svg), gNodes = mk('g', {}, svg);
-  const temp = mk('path', { fill: 'none', 'stroke-width': 8, 'stroke-linecap': 'round', opacity: .55 }, svg);
-  const top = (arr, i) => 72 + (n - arr.length) * rowH / 2 + i * rowH;
-  const posA = {}, posB = {};
-  L.A.forEach((a, i) => posA[a] = { x: pA.x + 30, y: top(L.A, i), c: COLORS[i % COLORS.length] });
-  L.B.forEach((b, i) => posB[b] = { x: pB.x + 30, y: top(L.B, i) });
-  const curve = (x1, y1, x2, y2) => { const m = (x1 + x2) / 2; return `M${x1} ${y1} C${m} ${y1} ${m} ${y2} ${x2} ${y2}`; };
-  const colorOfB = b => { const p = st.pairs.find(q => q[1] === b); return p ? posA[p[0]].c : null; };
+        /* ---- Level type: link (lines between card A and card B) ---- */
+        function linkLevel(L, st) {
+          const NS = "http://www.w3.org/2000/svg",
+            mk = (t, a, p) => {
+              const e = document.createElementNS(NS, t);
+              for (const k in a) e.setAttribute(k, a[k]);
+              if (p) p.appendChild(e);
+              return e;
+            };
+          const n = Math.max(L.A.length, L.B.length),
+            W = 760,
+            rowH = 76,
+            H = n * rowH + 96,
+            bw = 190,
+            bh = 52;
+          const pA = { x: 16, w: 250 },
+            pB = { x: W - 266, w: 250 };
+          const cham = (x, y, w, h, c) =>
+            `${x + c},${y} ${x + w},${y} ${x + w},${y + h - c} ${x + w - c},${y + h} ${x},${y + h} ${x},${y + c}`;
+          $("play").innerHTML = `<div class="arena"></div>`;
+          const svg = mk("svg", {
+            viewBox: `0 0 ${W} ${H}`,
+            role: "img",
+            "aria-label": "Tablero: une elementos de A con elementos de B",
+          });
+          $("play").firstChild.appendChild(svg);
+          [
+            [pA, "A", "#ff6b77"],
+            [pB, "B", "#ffd166"],
+          ].forEach(([p, name, col]) => {
+            mk(
+              "polygon",
+              {
+                points: cham(p.x, 8, p.w, H - 16, 16),
+                fill: "rgba(28,8,11,.82)",
+                stroke: "#5b1c23",
+                "stroke-width": 1.5,
+              },
+              svg,
+            );
+            const t = mk(
+              "text",
+              {
+                x: p.x + 18,
+                y: 50,
+                fill: col,
+                "font-family": "Anton, Impact, sans-serif",
+                "font-size": 30,
+              },
+              svg,
+            );
+            t.textContent = name;
+            const s = mk(
+              "text",
+              {
+                x: p.x + 46,
+                y: 49,
+                fill: "#a98d90",
+                "font-family": "JetBrains Mono, monospace",
+                "font-size": 12,
+              },
+              svg,
+            );
+            s.textContent = `|${name}| = ${(name === "A" ? L.A : L.B).length}`;
+          });
+          const gLines = mk("g", {}, svg),
+            gNodes = mk("g", {}, svg);
+          const temp = mk(
+            "path",
+            {
+              fill: "none",
+              "stroke-width": 8,
+              "stroke-linecap": "round",
+              opacity: 0.55,
+            },
+            svg,
+          );
+          const top = (arr, i) => 72 + ((n - arr.length) * rowH) / 2 + i * rowH;
+          const posA = {},
+            posB = {};
+          L.A.forEach(
+            (a, i) =>
+              (posA[a] = {
+                x: pA.x + 30,
+                y: top(L.A, i),
+                c: COLORS[i % COLORS.length],
+              }),
+          );
+          L.B.forEach((b, i) => (posB[b] = { x: pB.x + 30, y: top(L.B, i) }));
+          const curve = (x1, y1, x2, y2) => {
+            const m = (x1 + x2) / 2;
+            return `M${x1} ${y1} C${m} ${y1} ${m} ${y2} ${x2} ${y2}`;
+          };
+          const colorOfB = (b) => {
+            const p = st.pairs.find((q) => q[1] === b);
+            return p ? posA[p[0]].c : null;
+          };
 
-  function draw() {
-    gLines.innerHTML = ''; gNodes.innerHTML = '';
-    st.pairs.forEach(([a, b]) => {
-      const A = posA[a], B = posB[b];
-      const p = mk('path', { d: curve(A.x + bw, A.y + bh / 2, B.x, B.y + bh / 2), fill: 'none', stroke: A.c, 'stroke-width': 8, 'stroke-linecap': 'round', style: `cursor:pointer;filter:drop-shadow(0 0 6px ${A.c})` }, gLines);
-      mk('title', {}, p).textContent = `(${a}, ${b}) · toca para borrar`;
-      p.addEventListener('click', () => { st.pairs = st.pairs.filter(q => key(...q) !== key(a, b)); draw(); answer(); clearMsg(); });
-    });
-    const node = (label, P, side) => {
-      const g = mk('g', { 'data-side': side, 'data-v': label, tabindex: 0, role: 'button', 'aria-label': `${side}: ${label}`, style: 'cursor:pointer' }, gNodes);
-      const col = side === 'A' ? P.c : (colorOfB(label) || '#8a2731');
-      const active = side === 'A' ? true : !!colorOfB(label);
-      mk('polygon', { points: cham(P.x, P.y, bw, bh, 9), fill: st.fromA === label ? 'rgba(225,29,46,.35)' : 'rgba(255,255,255,.05)', stroke: active ? col : '#8a2731', 'stroke-width': 2.5 }, g);
-      mk('circle', { cx: side === 'A' ? P.x + bw : P.x, cy: P.y + bh / 2, r: 8, fill: active ? col : '#5b1c23' }, g);
-      const t = mk('text', { x: P.x + bw / 2, y: P.y + bh / 2 + 7, 'text-anchor': 'middle', fill: '#f5ecec', 'font-family': 'Chakra Petch, sans-serif', 'font-size': 20, 'font-weight': 700 }, g);
-      t.textContent = label;
-    };
-    L.A.forEach(a => node(a, posA[a], 'A')); L.B.forEach(b => node(b, posB[b], 'B'));
-  }
-  function add(a, b) { if (!st.pairs.some(p => key(...p) === key(a, b))) st.pairs.push([a, b]); st.fromA = null; draw(); answer(); clearMsg(); }
-  const toSvg = e => { const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY; return pt.matrixTransform(svg.getScreenCTM().inverse()); };
-  let drag = null;
-  svg.addEventListener('pointerdown', e => { const g = e.target.closest('[data-side]'); if (g && g.dataset.side === 'A') { drag = { a: g.dataset.v, moved: false }; svg.setPointerCapture(e.pointerId); } });
-  svg.addEventListener('pointermove', e => { if (!drag) return; drag.moved = true; const A = posA[drag.a], p = toSvg(e); temp.setAttribute('stroke', A.c); temp.setAttribute('d', curve(A.x + bw, A.y + bh / 2, p.x, p.y)); });
-  svg.addEventListener('pointerup', e => {
-    temp.setAttribute('d', '');
-    const hit = document.elementFromPoint(e.clientX, e.clientY), g = hit && hit.closest && hit.closest('[data-side]');
-    if (drag) { const { a, moved } = drag; drag = null; if (g && g.dataset.side === 'B') return add(a, g.dataset.v); if (!moved) { st.fromA = st.fromA === a ? null : a; draw(); } return; }
-    if (g && g.dataset.side === 'B' && st.fromA) add(st.fromA, g.dataset.v);
-  });
-  svg.addEventListener('keydown', e => { if (e.key !== 'Enter' && e.key !== ' ') return; const g = e.target.closest('[data-side]'); if (!g) return; e.preventDefault(); if (g.dataset.side === 'A') { st.fromA = g.dataset.v; draw(); } else if (st.fromA) add(st.fromA, g.dataset.v); });
+          function draw() {
+            gLines.innerHTML = "";
+            gNodes.innerHTML = "";
+            st.pairs.forEach(([a, b]) => {
+              const A = posA[a],
+                B = posB[b];
+              const p = mk(
+                "path",
+                {
+                  d: curve(A.x + bw, A.y + bh / 2, B.x, B.y + bh / 2),
+                  fill: "none",
+                  stroke: A.c,
+                  "stroke-width": 8,
+                  "stroke-linecap": "round",
+                  style: `cursor:pointer;filter:drop-shadow(0 0 6px ${A.c})`,
+                },
+                gLines,
+              );
+              mk("title", {}, p).textContent =
+                `(${a}, ${b}) · toca para borrar`;
+              p.addEventListener("click", () => {
+                st.pairs = st.pairs.filter((q) => key(...q) !== key(a, b));
+                draw();
+                answer();
+                clearMsg();
+              });
+            });
+            const node = (label, P, side) => {
+              const g = mk(
+                "g",
+                {
+                  "data-side": side,
+                  "data-v": label,
+                  tabindex: 0,
+                  role: "button",
+                  "aria-label": `${side}: ${label}`,
+                  style: "cursor:pointer",
+                },
+                gNodes,
+              );
+              const col = side === "A" ? P.c : colorOfB(label) || "#8a2731";
+              const active = side === "A" ? true : !!colorOfB(label);
+              mk(
+                "polygon",
+                {
+                  points: cham(P.x, P.y, bw, bh, 9),
+                  fill:
+                    st.fromA === label
+                      ? "rgba(225,29,46,.35)"
+                      : "rgba(255,255,255,.05)",
+                  stroke: active ? col : "#8a2731",
+                  "stroke-width": 2.5,
+                },
+                g,
+              );
+              mk(
+                "circle",
+                {
+                  cx: side === "A" ? P.x + bw : P.x,
+                  cy: P.y + bh / 2,
+                  r: 8,
+                  fill: active ? col : "#5b1c23",
+                },
+                g,
+              );
+              const t = mk(
+                "text",
+                {
+                  x: P.x + bw / 2,
+                  y: P.y + bh / 2 + 7,
+                  "text-anchor": "middle",
+                  fill: "#f5ecec",
+                  "font-family": "Chakra Petch, sans-serif",
+                  "font-size": 20,
+                  "font-weight": 700,
+                },
+                g,
+              );
+              t.textContent = label;
+            };
+            L.A.forEach((a) => node(a, posA[a], "A"));
+            L.B.forEach((b) => node(b, posB[b], "B"));
+          }
+          function add(a, b) {
+            if (!st.pairs.some((p) => key(...p) === key(a, b)))
+              st.pairs.push([a, b]);
+            st.fromA = null;
+            draw();
+            answer();
+            clearMsg();
+          }
+          const toSvg = (e) => {
+            const pt = svg.createSVGPoint();
+            pt.x = e.clientX;
+            pt.y = e.clientY;
+            return pt.matrixTransform(svg.getScreenCTM().inverse());
+          };
+          let drag = null;
+          svg.addEventListener("pointerdown", (e) => {
+            const g = e.target.closest("[data-side]");
+            if (g && g.dataset.side === "A") {
+              drag = { a: g.dataset.v, moved: false };
+              svg.setPointerCapture(e.pointerId);
+            }
+          });
+          svg.addEventListener("pointermove", (e) => {
+            if (!drag) return;
+            drag.moved = true;
+            const A = posA[drag.a],
+              p = toSvg(e);
+            temp.setAttribute("stroke", A.c);
+            temp.setAttribute("d", curve(A.x + bw, A.y + bh / 2, p.x, p.y));
+          });
+          svg.addEventListener("pointerup", (e) => {
+            temp.setAttribute("d", "");
+            const hit = document.elementFromPoint(e.clientX, e.clientY),
+              g = hit && hit.closest && hit.closest("[data-side]");
+            if (drag) {
+              const { a, moved } = drag;
+              drag = null;
+              if (g && g.dataset.side === "B") return add(a, g.dataset.v);
+              if (!moved) {
+                st.fromA = st.fromA === a ? null : a;
+                draw();
+              }
+              return;
+            }
+            if (g && g.dataset.side === "B" && st.fromA)
+              add(st.fromA, g.dataset.v);
+          });
+          svg.addEventListener("keydown", (e) => {
+            if (e.key !== "Enter" && e.key !== " ") return;
+            const g = e.target.closest("[data-side]");
+            if (!g) return;
+            e.preventDefault();
+            if (g.dataset.side === "A") {
+              st.fromA = g.dataset.v;
+              draw();
+            } else if (st.fromA) add(st.fromA, g.dataset.v);
+          });
 
-  function answer() { $('ans').innerHTML = `<div class="label">Tu respuesta</div><div class="rel"><span class="k">R = </span>${st.pairs.length ? fmt(st.pairs) : '{ }'}</div>`; }
-  draw(); answer();
-  $('check').onclick = () => checkPairs(L, st);
-}
+          function answer() {
+            $("ans").innerHTML =
+              `<div class="label">Tu respuesta</div><div class="rel"><span class="k">R = </span>${st.pairs.length ? fmt(st.pairs) : "{ }"}</div>`;
+          }
+          draw();
+          answer();
+          $("check").onclick = () => checkPairs(L, st);
+        }
 
-/* ---- Level type: pairs (tap A, tap B -> pair chip in tray) ---- */
-function pairsLevel(L, st) {
-  $('play').innerHTML = setCards(L, st, true);
-  $('play').querySelectorAll('[data-a]').forEach(b => b.onclick = () => { st.fromA = st.fromA === b.dataset.a ? null : b.dataset.a; pairsLevel(L, st); });
-  $('play').querySelectorAll('[data-b]').forEach(b => b.onclick = () => {
-    if (!st.fromA) return bad('Primero toca un elemento de A.');
-    const p = [st.fromA, b.dataset.b];
-    if (!st.pairs.some(q => key(...q) === key(...p))) st.pairs.push(p);
-    st.fromA = null; clearMsg(); pairsLevel(L, st);
-  });
-  $('ans').innerHTML = `<div class="label">A × B</div>
-    <div class="tray" id="tray" data-empty="Aquí aparecen los pares que armes. Toca uno para quitarlo.">${st.pairs.map(([a, b]) => `<button class="pair" data-p="${a}|${b}">(${a}, ${b})</button>`).join('')}</div>
+        /* ---- Level type: pairs (tap A, tap B -> pair chip in tray) ---- */
+        function pairsLevel(L, st) {
+          $("play").innerHTML = setCards(L, st, true);
+          $("play")
+            .querySelectorAll("[data-a]")
+            .forEach(
+              (b) =>
+                (b.onclick = () => {
+                  st.fromA = st.fromA === b.dataset.a ? null : b.dataset.a;
+                  pairsLevel(L, st);
+                }),
+            );
+          $("play")
+            .querySelectorAll("[data-b]")
+            .forEach(
+              (b) =>
+                (b.onclick = () => {
+                  if (!st.fromA) return bad("Primero toca un elemento de A.");
+                  const p = [st.fromA, b.dataset.b];
+                  if (!st.pairs.some((q) => key(...q) === key(...p)))
+                    st.pairs.push(p);
+                  st.fromA = null;
+                  clearMsg();
+                  pairsLevel(L, st);
+                }),
+            );
+          $("ans").innerHTML = `<div class="label">A × B</div>
+    <div class="tray" id="tray" data-empty="Aquí aparecen los pares que armes. Toca uno para quitarlo.">${st.pairs.map(([a, b]) => `<button class="pair" data-p="${a}|${b}">(${a}, ${b})</button>`).join("")}</div>
     <div class="cardin"><label for="cardin">|A × B| =</label><input id="cardin" type="number" inputmode="numeric" value="${st.card}"></div>`;
-  $('tray').querySelectorAll('.pair').forEach(b => b.onclick = () => { st.pairs = st.pairs.filter(q => key(...q) !== b.dataset.p); pairsLevel(L, st); });
-  $('cardin').oninput = e => { st.card = e.target.value; };
-  $('check').onclick = () => checkPairs(L, st);
-}
+          $("tray")
+            .querySelectorAll(".pair")
+            .forEach(
+              (b) =>
+                (b.onclick = () => {
+                  st.pairs = st.pairs.filter((q) => key(...q) !== b.dataset.p);
+                  pairsLevel(L, st);
+                }),
+            );
+          $("cardin").oninput = (e) => {
+            st.card = e.target.value;
+          };
+          $("check").onclick = () => checkPairs(L, st);
+        }
 
-function checkPairs(L, st) {
-  const want = new Set(L.answer.map(p => key(...p))), got = new Set(st.pairs.map(p => key(...p)));
-  const miss = L.answer.filter(p => !got.has(key(...p))), extra = st.pairs.filter(p => !want.has(key(...p)));
-  const cardOk = !L.card || Number(st.card) === L.card;
-  if (!miss.length && !extra.length && cardOk) return win();
-  const li = [];
-  if (extra.length) li.push(`Sobra ${extra.map(([a, b]) => `(${a}, ${b})`).join(', ')}`);
-  if (miss.length) li.push(`faltan ${miss.length} par${miss.length > 1 ? 'es' : ''}`);
-  if (!cardOk) li.push('revisa cuántos pares hay en total');
-  bad('Todavía no: ' + li.join(' · ') + '.');
-}
+        function checkPairs(L, st) {
+          const want = new Set(L.answer.map((p) => key(...p))),
+            got = new Set(st.pairs.map((p) => key(...p)));
+          const miss = L.answer.filter((p) => !got.has(key(...p))),
+            extra = st.pairs.filter((p) => !want.has(key(...p)));
+          const cardOk = !L.card || Number(st.card) === L.card;
+          if (!miss.length && !extra.length && cardOk) return win();
+          const li = [];
+          if (extra.length)
+            li.push(
+              `Sobra ${extra.map(([a, b]) => `(${a}, ${b})`).join(", ")}`,
+            );
+          if (miss.length)
+            li.push(`faltan ${miss.length} par${miss.length > 1 ? "es" : ""}`);
+          if (!cardOk) li.push("revisa cuántos pares hay en total");
+          bad("Todavía no: " + li.join(" · ") + ".");
+        }
 
-/* ---- Level type: pick (union / intersection) ---- */
-function pickLevel(L, st) {
-  const Q = L.questions[st.q];
-  $('play').innerHTML = setCards(L, st, false);
-  $('ans').innerHTML = `<div class="label">Pregunta ${st.q + 1} de ${L.questions.length}</div><p class="q">${Q.text}</p>
-    <div class="chips" id="pool">${L.pool.map(v => `<button class="el${st.pick.includes(v) ? ' on' : ''}" data-v="${v}" aria-pressed="${st.pick.includes(v)}">${v}</button>`).join('')}</div>
-    <div class="rel"><span class="k">${Q.label} = </span>{${[...st.pick].sort((a, b) => a - b).join(', ')}}</div>`;
-  $('pool').querySelectorAll('.el').forEach(b => b.onclick = () => { const v = +b.dataset.v; st.pick = st.pick.includes(v) ? st.pick.filter(x => x !== v) : [...st.pick, v]; clearMsg(); pickLevel(L, st); });
-  $('check').onclick = () => {
-    const ok = st.pick.length === Q.answer.length && Q.answer.every(v => st.pick.includes(v));
-    if (!ok) { const ex = st.pick.filter(v => !Q.answer.includes(v)), mi = Q.answer.filter(v => !st.pick.includes(v)).length;
-      return bad('Todavía no: ' + [ex.length ? `sobra ${ex.join(', ')}` : '', mi ? `faltan ${mi} elemento${mi > 1 ? 's' : ''}` : ''].filter(Boolean).join(' · ') + '.'); }
-    if (st.q < L.questions.length - 1) { st.q++; st.pick = []; pickLevel(L, st); $('msg').className = 'msg'; $('msg').innerHTML = `<span style="color:var(--ok)">✓ ${Q.label} = {${Q.answer.join(', ')}}</span>. Sigue con la siguiente.`; return; }
-    win();
-  };
-}
+        /* ---- Level type: pick (union / intersection) ---- */
+        function pickLevel(L, st) {
+          const Q = L.questions[st.q];
+          $("play").innerHTML = setCards(L, st, false);
+          $("ans").innerHTML =
+            `<div class="label">Pregunta ${st.q + 1} de ${L.questions.length}</div><p class="q">${Q.text}</p>
+    <div class="chips" id="pool">${L.pool.map((v) => `<button class="el${st.pick.includes(v) ? " on" : ""}" data-v="${v}" aria-pressed="${st.pick.includes(v)}">${v}</button>`).join("")}</div>
+    <div class="rel"><span class="k">${Q.label} = </span>{${[...st.pick].sort((a, b) => a - b).join(", ")}}</div>`;
+          $("pool")
+            .querySelectorAll(".el")
+            .forEach(
+              (b) =>
+                (b.onclick = () => {
+                  const v = +b.dataset.v;
+                  st.pick = st.pick.includes(v)
+                    ? st.pick.filter((x) => x !== v)
+                    : [...st.pick, v];
+                  clearMsg();
+                  pickLevel(L, st);
+                }),
+            );
+          $("check").onclick = () => {
+            const ok =
+              st.pick.length === Q.answer.length &&
+              Q.answer.every((v) => st.pick.includes(v));
+            if (!ok) {
+              const ex = st.pick.filter((v) => !Q.answer.includes(v)),
+                mi = Q.answer.filter((v) => !st.pick.includes(v)).length;
+              return bad(
+                "Todavía no: " +
+                  [
+                    ex.length ? `sobra ${ex.join(", ")}` : "",
+                    mi ? `faltan ${mi} elemento${mi > 1 ? "s" : ""}` : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" · ") +
+                  ".",
+              );
+            }
+            if (st.q < L.questions.length - 1) {
+              st.q++;
+              st.pick = [];
+              pickLevel(L, st);
+              $("msg").className = "msg";
+              $("msg").innerHTML =
+                `<span style="color:var(--ok)">✓ ${Q.label} = {${Q.answer.join(", ")}}</span>. Sigue con la siguiente.`;
+              return;
+            }
+            win();
+          };
+        }
 
-/* ---- Level type: quiz (read a diagram, pick an option) ---- */
-function visualSvg(kind) {
-  if (kind === 'arrows') return `<svg viewBox="0 0 620 230" role="img" aria-label="Diagrama de flechas: A = {6, 8, 7}, B = {1, 5, 4}">
+        /* ---- Level type: quiz (read a diagram, pick an option) ---- */
+        function visualSvg(kind) {
+          if (kind === "arrows")
+            return `<svg viewBox="0 0 620 230" role="img" aria-label="Diagrama de flechas: A = {6, 8, 7}, B = {1, 5, 4}">
     <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#ffd166"/></marker></defs>
     <ellipse cx="160" cy="118" rx="96" ry="98" fill="rgba(255,107,119,.12)" stroke="#ff6b77" stroke-width="2.5"/>
     <ellipse cx="460" cy="118" rx="96" ry="98" fill="rgba(255,209,102,.1)" stroke="#ffd166" stroke-width="2.5"/>
@@ -396,7 +1418,7 @@ function visualSvg(kind) {
       <text x="460" y="76">1</text><text x="460" y="126">5</text><text x="460" y="176">4</text></g>
     <g stroke="#ffd166" stroke-width="3" fill="none" marker-end="url(#ah)">
       <path d="M180 68 L436 68"/><path d="M180 118 C300 118 330 168 436 168"/></g></svg>`;
-  return `<svg viewBox="0 0 620 250" role="img" aria-label="Diagrama de Venn: solo A tiene 1, 2 y 6; la zona común tiene 3; solo B tiene 7, 9 y 11">
+          return `<svg viewBox="0 0 620 250" role="img" aria-label="Diagrama de Venn: solo A tiene 1, 2 y 6; la zona común tiene 3; solo B tiene 7, 9 y 11">
     <defs><clipPath id="cA"><circle cx="250" cy="130" r="105"/></clipPath></defs>
     <circle cx="250" cy="130" r="105" fill="rgba(255,107,119,.1)" stroke="#ff6b77" stroke-width="2.5"/>
     <circle cx="370" cy="130" r="105" fill="rgba(255,209,102,.08)" stroke="#ffd166" stroke-width="2.5"/>
@@ -407,61 +1429,116 @@ function visualSvg(kind) {
       <text x="205" y="92">1</text><text x="200" y="140">2</text><text x="205" y="188">6</text>
       <text x="310" y="140">3</text>
       <text x="420" y="92">7</text><text x="425" y="140">9</text><text x="420" y="188">11</text></g></svg>`;
-}
-function quizLevel(L, st) {
-  st.ans = st.ans || [];
-  const Q = L.questions[st.q];
-  $('play').innerHTML = `<div class="cham visual"><div class="in">${visualSvg(L.visual)}</div></div>`;
-  $('ans').innerHTML = `<div class="label">Pregunta ${st.q + 1} de ${L.questions.length}</div>
-    ${L.questions.length > 1 ? `<div class="qdots">${L.questions.map((_, j) => `<i class="${j < st.q ? 'ok' : j === st.q ? 'on' : ''}"></i>`).join('')}</div>` : ''}
+        }
+        function quizLevel(L, st) {
+          st.ans = st.ans || [];
+          const Q = L.questions[st.q];
+          $("play").innerHTML =
+            `<div class="cham visual"><div class="in">${visualSvg(L.visual)}</div></div>`;
+          $("ans").innerHTML =
+            `<div class="label">Pregunta ${st.q + 1} de ${L.questions.length}</div>
+    ${L.questions.length > 1 ? `<div class="qdots">${L.questions.map((_, j) => `<i class="${j < st.q ? "ok" : j === st.q ? "on" : ""}"></i>`).join("")}</div>` : ""}
     <p class="q">${Q.text}</p>
-    <div class="opts">${Q.options.map((o, j) => `<button class="opt" data-j="${j}" aria-pressed="${st.ans[st.q] === j}"><span class="n">${j + 1})</span>${o}</button>`).join('')}</div>`;
-  $('ans').querySelectorAll('.opt').forEach(b => b.onclick = () => { st.ans[st.q] = +b.dataset.j; clearMsg(); quizLevel(L, st); });
-  $('check').onclick = () => {
-    const a = st.ans[st.q];
-    if (a === undefined) return bad('Elige una opción primero.');
-    if (a !== Q.answer) return bad(`La opción ${a + 1} no es. ${L.hint}`);
-    if (st.q < L.questions.length - 1) { st.q++; quizLevel(L, st); $('msg').className = 'msg'; $('msg').innerHTML = `<span style="color:var(--ok)">✓ ${Q.why}</span>`; return; }
-    win();
-  };
-}
+    <div class="opts">${Q.options.map((o, j) => `<button class="opt" data-j="${j}" aria-pressed="${st.ans[st.q] === j}"><span class="n">${j + 1})</span>${o}</button>`).join("")}</div>`;
+          $("ans")
+            .querySelectorAll(".opt")
+            .forEach(
+              (b) =>
+                (b.onclick = () => {
+                  st.ans[st.q] = +b.dataset.j;
+                  clearMsg();
+                  quizLevel(L, st);
+                }),
+            );
+          $("check").onclick = () => {
+            const a = st.ans[st.q];
+            if (a === undefined) return bad("Elige una opción primero.");
+            if (a !== Q.answer)
+              return bad(`La opción ${a + 1} no es. ${L.hint}`);
+            if (st.q < L.questions.length - 1) {
+              st.q++;
+              quizLevel(L, st);
+              $("msg").className = "msg";
+              $("msg").innerHTML =
+                `<span style="color:var(--ok)">✓ ${Q.why}</span>`;
+              return;
+            }
+            win();
+          };
+        }
 
-/* ================= RESULT ================= */
-function win() {
-  const L = LEVELS[cur], first = !done.has(cur);
-  if (first) { done.add(cur); score += 100; }
-  const last = cur === LEVELS.length - 1, all = done.size === LEVELS.length;
-  $('ov').hidden = false;
-  $('ov').innerHTML = `<div class="cham modal" role="dialog" aria-modal="true" aria-labelledby="wt"><div class="in">
+        /* ================= RESULT ================= */
+        function win() {
+          const L = LEVELS[cur],
+            first = !done.has(cur);
+          if (first) {
+            done.add(cur);
+            score += 100;
+          }
+          const last = cur === LEVELS.length - 1,
+            all = done.size === LEVELS.length;
+          $("ov").hidden = false;
+          $("ov").innerHTML =
+            `<div class="cham modal" role="dialog" aria-modal="true" aria-labelledby="wt"><div class="in">
     <div class="label">Nivel ${L.code} · ${L.name}</div>
     <h2 id="wt"><span>¡Correcto!</span></h2>
-    <div class="plus">${first ? '+100 pts' : 'Nivel repetido'} · Total ${score} pts</div>
+    <div class="plus">${first ? "+100 pts" : "Nivel repetido"} · Total ${score} pts</div>
     <div class="theory"><div class="label">Teoría</div>${L.theory}<span class="f">${L.formula}</span></div>
     <div class="actions">${last ? `<button class="btn ok" id="fin">Ver resultado</button>` : `<button class="btn" id="nx">Siguiente nivel →</button>`}<button class="btn ghost" id="mn">Menú</button></div>
   </div></div>`;
-  const close = () => { $('ov').hidden = true; $('ov').innerHTML = ''; };
-  $('mn').onclick = () => { close(); sel = Math.min(cur + 1, LEVELS.length - 1); menu(); };
-  if ($('nx')) $('nx').onclick = () => { close(); start(cur + 1); };
-  if ($('fin')) $('fin').onclick = () => { close(); final(); };
-  ($('nx') || $('fin')).focus();
-}
-function final() {
-  screen = 'end'; $('glyph').textContent = '∎';
-  const n = done.size;
-  app.innerHTML = `<section class="hero"><div class="label">Partida terminada</div><h1>Misión<br><span>cumplida</span></h1>
+          const close = () => {
+            $("ov").hidden = true;
+            $("ov").innerHTML = "";
+          };
+          $("mn").onclick = () => {
+            close();
+            sel = Math.min(cur + 1, LEVELS.length - 1);
+            menu();
+          };
+          if ($("nx"))
+            $("nx").onclick = () => {
+              close();
+              start(cur + 1);
+            };
+          if ($("fin"))
+            $("fin").onclick = () => {
+              close();
+              final();
+            };
+          ($("nx") || $("fin")).focus();
+        }
+        function final() {
+          screen = "end";
+          $("glyph").textContent = "∎";
+          const n = done.size;
+          app.innerHTML = `<section class="hero"><div class="label">Partida terminada</div><h1>Misión<br><span>cumplida</span></h1>
     <p>Completaste ${n} de ${LEVELS.length} niveles.</p></section>
     <div class="cham"><div class="in" style="display:flex;flex-direction:column;gap:10px;align-items:flex-start">
-      <div class="stars" aria-label="${n} de 4 estrellas">${'★'.repeat(n)}${'☆'.repeat(LEVELS.length - n)}</div>
+      <div class="stars" aria-label="${n} de 4 estrellas">${"★".repeat(n)}${"☆".repeat(LEVELS.length - n)}</div>
       <div class="pts"><span>${score}</span> pts</div>
       <p class="muted" style="margin:0">Repasaste pares ordenados, relaciones, unión e intersección, producto cartesiano y lectura de diagramas.</p>
       <div class="actions"><button class="btn" id="again">Jugar de nuevo</button><button class="btn ghost" id="mn2">Menú</button></div></div></div>`;
-  $('again').onclick = () => { done.clear(); score = 0; ST.forEach((_, i) => ST[i] = { pairs: [], q: 0, pick: [], fromA: null, card: '' }); sel = 0; menu(); };
-  $('mn2').onclick = menu;
-}
-addEventListener('keydown', e => { if (e.key === 'Escape' && !$('ov').hidden) { $('ov').hidden = true; $('ov').innerHTML = ''; } });
+          $("again").onclick = () => {
+            done.clear();
+            score = 0;
+            ST.forEach(
+              (_, i) =>
+                (ST[i] = { pairs: [], q: 0, pick: [], fromA: null, card: "" }),
+            );
+            sel = 0;
+            menu();
+          };
+          $("mn2").onclick = menu;
+        }
+        addEventListener("keydown", (e) => {
+          if (e.key === "Escape" && !$("ov").hidden) {
+            $("ov").hidden = true;
+            $("ov").innerHTML = "";
+          }
+        });
 
-menu();
-})();
-</script>
-</body>
+        menu();
+      })();
+    </script>
+  </body>
 </html>
