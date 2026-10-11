@@ -677,6 +677,7 @@
         background: var(--red);
       }
       .modal .in {
+        height: auto;
         display: flex;
         flex-direction: column;
         gap: 12px;
@@ -687,6 +688,7 @@
           rgba(18, 6, 8, 0.97)
         );
       }
+
       .modal h2 {
         font-family: var(--display);
         font-weight: 400;
@@ -952,7 +954,7 @@
       <div class="cham"><div class="in"><div class="label">Fase 02</div><h4>Responde</h4><p>Une con líneas, toca elementos o arma pares según el nivel.</p></div></div>
       <div class="cham"><div class="in"><div class="label">Fase 03</div><h4>Aprende</h4><p>Al acertar ves la teoría y la fórmula detrás de la respuesta.</p></div></div>
     </div>
-    <div class="foot"><span>Proyecto colaborativo · Jala University</span><button class="link" id="unlock">${unlockAll ? "Bloquear niveles" : "Desbloquear todos (modo presentación)"}</button></div>`;
+    <div class="foot"><span>Proyecto colaborativo · Jala University</span><button class="link" id="credits">Créditos</button><button class="link" id="unlock">${unlockAll ? "Bloquear niveles" : "Desbloquear todos (modo presentación)"}</button></div>`;
           app.querySelectorAll(".lcard").forEach(
             (b) =>
               (b.onclick = () => {
@@ -976,12 +978,38 @@
             unlockAll = !unlockAll;
             menu();
           };
+          $("credits").onclick = credits;
         }
         function toastLocked() {
           const b = $("play");
           b.textContent = "Completa el nivel anterior";
           b.classList.add("shake");
           setTimeout(menu, 1200);
+        }
+        /* ================= CRÉDITOS ================= */
+        const TEAM = [
+          "Lautaro Bruna",
+          "Julieta Sol Carreras",
+          "Valentín Chacoma",
+          "David Méndez Pérez",
+          "Luis Miguel Pereira",
+          "Juan Sebastián Valencia Estrada",
+        ];
+        function credits() {
+          $("ov").hidden = false;
+          $("ov").innerHTML =
+            `<div class="cham modal" role="dialog" aria-modal="true" aria-labelledby="ct"><div class="in">
+    <div class="label">Matemáticas Discretas · Jala University</div>
+    <h2 id="ct">Créditos</h2>
+    <p class="muted" style="margin:0">Proyecto colaborativo desarrollado por:</p>
+    <ul class="team">${TEAM.map((n) => `<li>${n}</li>`).join("")}</ul>
+    <div class="actions"><button class="btn ghost" id="cc">Cerrar</button></div>
+  </div></div>`;
+          $("cc").onclick = () => {
+            $("ov").hidden = true;
+            $("ov").innerHTML = "";
+          };
+          $("cc").focus();
         }
 
         /* ================= LEVEL ================= */
@@ -1407,7 +1435,7 @@
         /* ---- Level type: quiz (read a diagram, pick an option) ---- */
         function visualSvg(kind) {
           if (kind === "arrows")
-            return `<svg viewBox="0 0 620 230" role="img" aria-label="Diagrama de flechas: A = {6, 8, 7}, B = {1, 5, 4}">
+            return `<svg viewBox="0 -12 620 242" role="img" aria-label="Diagrama de flechas: A = {6, 8, 7}, B = {1, 5, 4}">
     <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#ffd166"/></marker></defs>
     <ellipse cx="160" cy="118" rx="96" ry="98" fill="rgba(255,107,119,.12)" stroke="#ff6b77" stroke-width="2.5"/>
     <ellipse cx="460" cy="118" rx="96" ry="98" fill="rgba(255,209,102,.1)" stroke="#ffd166" stroke-width="2.5"/>
